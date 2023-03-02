@@ -4,7 +4,7 @@ import pyinputplus as pyip
 import prettytable
 from prettytable import PrettyTable
 import re
- 
+import validate_email
 from datetime import datetime
 
 config= configparser.ConfigParser()
@@ -34,7 +34,7 @@ while True:
     print("2. Modify existing account details")
     print("3. Generate monthly bill")
     print("4. Display transactions between two dates")
-    print("5. Exit")
+    print("5. Exit \n")
     
     
     choice = pyip.inputInt("Enter your choice (1-5):\n ", min=1, max=5)
@@ -79,8 +79,9 @@ while True:
         print("4. State")
         print("5. Zipcode")
         print("6. Phone")
-        print("7. Exit to main menu")
-        choice = pyip.inputInt("Enter your choice (1-7): ", min=1, max=7)
+        print("7. Email")
+        print("8. Exit to main menu")
+        choice = pyip.inputInt("Enter your choice (1-7): ", min=1, max=8)
         if choice == 1:
             first_name = pyip.inputStr("Enter new first name: ")
             if not first_name:
@@ -91,7 +92,7 @@ while True:
             query = f"UPDATE CDW_SAPP_CUSTOMER SET FIRST_NAME='{first_name}', MIDDLE_NAME='{middle_name}', LAST_NAME='{last_name}' WHERE CREDIT_CARD_NO = '{credit_card_no}'"
             cursor.execute(query)
             db.commit()
-            print(f"Customer {credit_card_no} name updated successfully.")
+            print(f"Customer {credit_card_no} name updated successfully.\n")
         elif choice == 2:
             apt_no = pyip.inputStr("Enter apartment number: ")
             street_name = pyip.inputStr("Enter street name: ")
@@ -99,7 +100,7 @@ while True:
             query = f"UPDATE CDW_SAPP_CUSTOMER SET FULL_STREET_ADDRESS = '{full_address}' WHERE CREDIT_CARD_NO = '{credit_card_no}'"
             cursor.execute(query)
             db.commit()
-            print("full_Street_Address updated successfully.")
+            print("full_Street_Address updated successfully.\n")
         elif choice == 3:
             new_city = pyip.inputStr("Enter new city: \n")
             if not new_city:
@@ -112,7 +113,7 @@ while True:
         elif choice == 4:
             new_state = pyip.inputStr("Enter new state: \n")
             if not new_state:
-                print("Invalid input. State cannot be empty.")
+                print("Invalid input. State cannot be empty.\n")
                 continue
             query = f"UPDATE CDW_SAPP_CUSTOMER SET CUST_STATE = '{new_state}' WHERE CREDIT_CARD_NO = '{credit_card_no}'"
             cursor.execute(query)
@@ -121,7 +122,7 @@ while True:
         elif choice == 5:
             new_zip = pyip.inputStr("Enter new zipcode: \n")
             if not new_zip:
-                print("Invalid input. Zipcode cannot be empty.")
+                print("Invalid input. Zipcode cannot be empty.\n")
                 continue
             query = f"UPDATE CDW_SAPP_CUSTOMER SET CUST_ZIP = '{new_zip}' WHERE CREDIT_CARD_NO = '{credit_card_no}'"
             cursor.execute(query)
@@ -140,8 +141,24 @@ while True:
             query = f"UPDATE CDW_SAPP_CUSTOMER SET CUST_PHONE = '{phone}' WHERE CREDIT_CARD_NO = '{credit_card_no}'"
             cursor.execute(query)
             db.commit()
-            print("Phone number updated successfully.\n")   
+            print("Phone number updated successfully.\n")
+            
+            choice = pyip.inputInt("Enter your choice: ")
         elif choice == 7:
+            
+            new_email = pyip.inputStr("Enter new email address: \n")
+            if not new_email:
+                print("Invalid input. Email address cannot be empty.\n")
+                continue
+            is_valid = validate_email.validate_email(new_email)
+            if not is_valid:
+                print("Invalid input. Please enter a valid email address.\n")
+                continue
+            update_query = f"UPDATE CDW_SAPP_CUSTOMER SET CUST_EMAIL = '{new_email}' WHERE CREDIT_CARD_NO = '{credit_card_no}'"
+            cursor.execute(update_query)
+            db.commit()
+            print("Email address updated successfully.\n")   
+        elif choice == 8:
             #exit to main menu
             continue
     elif choice == 3:
@@ -153,20 +170,14 @@ while True:
         if not credit_card_no:
             print("Invalid input. Credit card number cannot be empty.\n")
             continue
-        year = pyip.inputInt("Enter year (YYYY): ")
-        if len(year) != 4:
-            print("Invalid input. Year should be in the format of YYYY.\n")
-            continue
-        if not year.isdigit():
-            print("Invalid input. Year should be a number.\n")
+        year = pyip.inputStr("Enter year (YYYY): ")
+        if len(year) != 4 or not year.isdigit():
+            print("Invalid input. Year should be a 4-digit number.\n")
             continue
         
-        month = pyip.inputInt("Enter month (MM): ")
-        if len(month) != 2:
-            print("Invalid input. Month should be in the format of MM.\n")
-            continue
-        if not month.isdigit():
-            print("Invalid input. Month should be a number.\n")
+        month = pyip.inputStr("Enter month (MM): ")
+        if len(month) != 2 or not month.isdigit():
+            print("Invalid input. Month should be a 2-digit number.\n")
             continue
          
         # Format year and month as YYYYMM
