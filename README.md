@@ -1,18 +1,16 @@
 
 
-Project Name: Credit Card System Data Extraction, Transformation and Loading using Python and PySpark
+**Project Name: Credit Card System Data Extraction, Transformation and Loading using Python and PySpark**
 
-Project Overview:
+**Project Overview:**
 
 The Credit Card System Data Extraction, Transformation and Loading project involves reading and extracting data from JSON files using Python and PySpark, transforming the data according to the specifications outlined in the mapping document, and loading the transformed data into an RDBMS (MariaDB) using Python and PySpark.
 
-The project has three functional requirements:
+**The project has two functional requirements:**
 
 1.Data Extraction and Transformation with Python and PySpark
 
 2. Data loading into Database
-
-3. plotting graphs against the database
 
 Technical Challenges:
 
@@ -26,7 +24,7 @@ The following technical challenges were faced during the project development:
 
 4.Validating user inputs in the console menus.
 
-How the technical challenges were resolved:
+**How the technical challenges were resolved:**
 
 1.Mapping the JSON file fields to the database fields:
 To map the JSON file fields to the database fields, we used the mapping document as a reference guide. The mapping document provided the field names and data types for each database table. This allowed us to create a mapping between the JSON file fields and the database fields.
@@ -40,6 +38,16 @@ To handle null values and default values, we used Python and PySpark functions s
 4.Validating user inputs:
 To validate user inputs, we used Python and PyInputPlus library functions such as inputInt() or inputstring to ensure that the input is an integer/string, and use validate_email module to ensure that the input is a valid email address.
 
-Conclusion:
+
+*Technologies/tools/libraries Used*
+
+1.Python: Python was used for data cleaning, data analysis, and data visualization.
+2.MariaDB: MariaDB was used as a Relational Database Management System to store the data.
+3.Apache Spark: Apache Spark was used for data processing and to extract data from JSON files.
+4.Matplotlib and Seaborn: These libraries were used for data visualization.
+5.PySpark SQL: PySpark SQL was used to query the data.
+
+
+**Conclusion:**
 
 The Credit Card System Data Extraction, Transformation and Loading project involved extracting data from JSON files, transforming the data according to the specifications outlined in the mapping document, and loading the transformed data into an RDBMS using Python and PySpark. The project faced technical challenges such as mapping JSON fields to database fields, transforming data types and formats, handling null values and default values, and validating user inputs. These challenges were resolved using Python and PySpark functions and libraries such as title(), str(), regular expressions, if statement, and PyInputPlus.
