@@ -1,8 +1,8 @@
 import mysql.connector
 import configparser
 import pyinputplus as pyip
-from pyspark.sql.functions import  concat_ws, regexp_replace, concat,lit,col,udf, lpad,when, length,expr,substring
- 
+import prettytable
+from prettytable import PrettyTable
 
 
 config= configparser.ConfigParser()
@@ -29,12 +29,13 @@ cursor = db.cursor()
 
 
 while True:
-    print("CUSTOMER DETAILS MENU")
+    print("CUSTOMER DETAILS MENU \n")
     print("1. Check existing account details")
     print("2. Modify existing account details")
     print("3. Generate monthly bill")
     print("4. Display transactions between two dates")
     print("5. Exit")
+    
     choice = pyip.inputInt("Enter your choice (1-5):\n ", min=1, max=5)
 
     if choice == 1:
@@ -44,24 +45,44 @@ while True:
         cursor.execute(query)
         result = cursor.fetchall()
         if result:
-            print(result)
+            table = prettytable.PrettyTable()
+            table.field_names = [i[0] for i in cursor.description]
+            for row in result:
+                table.add_row(row)
+            print(table)
         else:
             print("Customer not found.")
 
     elif choice == 2:
-        # Modify existing account details
-        credit_card_no = pyip.inputStr("Enter credit card number: ")
-        query = f"SELECT * FROM CDW_SAPP_CUSTOMER WHERE CREDIT_CARD_NO = '{credit_card_no}'"
-        cursor.execute(query)
-        result = cursor.fetchone()
-        if result:
-            print(f"Customer Details for {credit_card_no}:\n")
-            print(f"1. Name: {result[1]} {result[2]} {result[3]}\n")
-            print(f"2. Address: {result[9]} {result[10]} {result[11]} {result[12]} {result[13]}\n")
-            print(f"3. Phone: {result[14]}\n")
-            print(f"4. Email: {result[15]}\n")
-            field = pyip.inputInt("Enter field number to modify (1-5): ", min=1, max=5)
-            if field == 1:
+        
+            # Modify existing account details
+            print("Which customer account detail would you like to update?")
+            print("1. Address")
+            print("2. City")
+            print("3. State")
+            print("4. Zipcode")
+            print("5. Exit to main menu")
+            choice = pyip.inputInt("Enter your choice (1-4): ", min=1, max=5)
+            query = f"SELECT * FROM CDW_SAPP_CUSTOMER WHERE CREDIT_CARD_NO = '{credit_card_no}'"
+            cursor.execute(query)
+            result = cursor.fetchone()
+            
+            if result:
+                print(f"Customer Details for {credit_card_no}:\n")
+                x = PrettyTable()
+                x.field_names = ["Field Number", "Field Name", "Current Value"]
+                x.add_row([1, "Name", f"{result[1]} {result[2]} {result[3]}"])
+                if len(result) >= 14:
+                    x.add_row([2, "Address", f"{result[9]} {result[10]} {result[11]} {result[12]} {result[13]}"])
+                else:
+                    x.add_row([2, "Address", "Address not found."])
+                    x.add_row([3, "Phone", result[14]])
+                    x.add_row([4, "Email", result[15]])
+                    print(x)
+                field_num = pyip.inputInt("Enter field number to modify (1-4): ", min=1, max=4)
+            
+            # update the selected field in the database
+            if field_num == 1:
                 first_name = pyip.inputStr("Enter first name: \n")
                 middle_name = pyip.inputStr("Enter middle name: \n")
                 last_name = pyip.inputStr("Enter last name: \n")
@@ -71,49 +92,67 @@ while True:
                 query = f"UPDATE CDW_SAPP_CUSTOMER SET FIRST_NAME = '{first_name}', MIDDLE_NAME = '{middle_name}', LAST_NAME = '{last_name}' WHERE CREDIT_CARD_NO = '{credit_card_no}'"
                 cursor.execute(query)
                 db.commit()
-                print("Customer details updated successfully.\n")
-            elif field == 2:
+                print("Name details updated successfully.\n")
+                            
+            elif field_num == 2:
                 apt_no = pyip.inputStr("Enter apartment number: \n")
                 street = pyip.inputStr("Enter street name: \n")
                 full_street_address = f"{apt_no}, {street} "
                 query = f"UPDATE CDW_SAPP_CUSTOMER SET FULL_STREET_ADDRESS = '{full_street_address}' WHERE CREDIT_CARD_NO = '{credit_card_no}'"
                 cursor.execute(query)
                 db.commit()
-                print("Customer details updated successfully.\n")
-            elif field == 3:
-                phone = pyip.inputStr("Enter the 10 digit phone number without spaces or hyphen: \n")
-                phone = f"({phone[:3]}){phone[3:6]}-{phone[6:]}"
+                print("Address details updated successfully.\n")
+                
+            elif field_num == 3:
+                phone = pyip.inputStr("Enter phone number: \n")
                 query = f"UPDATE CDW_SAPP_CUSTOMER SET CUST_PHONE = '{phone}' WHERE CREDIT_CARD_NO = '{credit_card_no}'"
                 cursor.execute(query)
                 db.commit()
-                print("Customer details updated successfully.\n")
-            elif field == 4:
-                email = pyip.inputStr("Enter email address: \n")
-                query = f"UPDATE CDW_SAPP_CUSTOMER SET EMAIL = '{email}' WHERE CREDIT_CARD_NO = '{credit_card_no}'"
+                print("Phone details updated successfully.\n")
+
+            elif field_num == 4:
+                email = pyip.inputEmail("Enter email address: \n")
+                query = f"UPDATE CDW_SAPP_CUSTOMER SET CUST_EMAIL = '{email}' WHERE CREDIT_CARD_NO = '{credit_card_no}'"
                 cursor.execute(query)
                 db.commit()
-                print("Customer details updated successfully.\n")
-            elif field == 5:
+                print("Email details updated successfully.\n")
+            
+
+            
+                
+                    
+                
+            elif field_num == 5:
                 print("Returning to main menu...\n")
+                break
             else:
                 print("Invalid field number. Returning to main menu...\n")
+                break
 
     elif choice == 3:
         # Generate monthly bill
         credit_card_no = pyip.inputStr("Enter credit card number: ")
         month = pyip.inputInt("Enter month (1-12): ", min=1, max=12)
         year = pyip.inputInt("Enter year (yyyy): ")
-        query = f"SELECT * FROM CDW_SAPP_CREDITCARD WHERE CREDIT_CARD_NO = '{credit_card_no}' AND MONTH = {month} AND YEAR = {year}"
-        cursor.execute(query)
+        timeid=year + month
+        query = f"SELECT TRANSACTION_TYPE, SUM(TRANSACTION_VALUE) AS TOTAL_SPEND FROM CDW_SAPP_CREDIT_CARD \
+           WHERE CUST_CC_NO = %s AND TIMEID LIKE %s \
+           GROUP BY TRANSACTION_TYPE"
+        arg = (credit_card_no, f"{timeid}%")   
+        cursor.execute(query,arg)
         result = cursor.fetchall()
         if result:
+            total_bill=0
             for row in result:
-                print(f"Credit Card No: {row[0]}")
-                print(f"Year: {row[1]}")
-                print(f"Month: {row[2]}")
-                print(f"Outstanding Balance: {row[3]}")
-                print(f"Minimum Payment: {row[4]}")
-                print(f"Credit Limit: {row[5]}\n")
+                if row[0] == "C":
+                    total_bill -= row[1]
+            else:
+                total_bill += row[1]
+        
+            # print the bill information
+            print("Credit card number:", credit_card_no)
+            print("Billing period:", month, "/", year)
+            print("Total amount due:", total_bill)
         else:
             print("No bill found for this month.")
 
@@ -127,17 +166,13 @@ while True:
         result = cursor.fetchall()
         if result:
             for row in result:
-                print(f"Credit Card No: {row[0]}")
-                print(f"Transaction ID: {row[1]}")
-                print(f"Transaction Type: {row[2]}")
-                print(f"Transaction Value: {row[3]}")
-                print(f"Transaction Date: {row[4]}")
-                print(f"Branch Code: {row[5]}\n")
-            else:
-                print("No transactions found between these dates.")
+                print(row)
+        elif len(result)==0:
+            print("No transactions found between these dates.")
+            continue
 
     elif choice == 5:
-        print("Thank you for using the system.")
+        print("Exiting the system.")
         db.close()
         break
 
