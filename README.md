@@ -6,11 +6,13 @@ Project Overview:
 
 The Credit Card System Data Extraction, Transformation and Loading project involves reading and extracting data from JSON files using Python and PySpark, transforming the data according to the specifications outlined in the mapping document, and loading the transformed data into an RDBMS (MariaDB) using Python and PySpark.
 
-The project has two functional requirements:
+The project has three functional requirements:
 
 1.Data Extraction and Transformation with Python and PySpark
 
 2. Data loading into Database
+
+3. plotting graphs against the database
 
 Technical Challenges:
 
