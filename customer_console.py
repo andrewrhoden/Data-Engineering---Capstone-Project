@@ -109,7 +109,7 @@ while True:
             query = f"UPDATE CDW_SAPP_CUSTOMER SET CUST_CITY = '{new_city}' WHERE CREDIT_CARD_NO = '{credit_card_no}'"
             cursor.execute(query)
             db.commit()
-            print("City updated successfully.")
+            print("City updated successfully.\n")
         elif choice == 4:
             new_state = pyip.inputStr("Enter new state: \n")
             if not new_state:
@@ -118,7 +118,7 @@ while True:
             query = f"UPDATE CDW_SAPP_CUSTOMER SET CUST_STATE = '{new_state}' WHERE CREDIT_CARD_NO = '{credit_card_no}'"
             cursor.execute(query)
             db.commit()
-            print("State updated successfully.")
+            print("State updated successfully.\n")
         elif choice == 5:
             new_zip = pyip.inputStr("Enter new zipcode: \n")
             if not new_zip:
